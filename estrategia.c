@@ -59,20 +59,21 @@ void disponer_con_backtracking(Nivel* nivel, Mapa* mapa) {
     int casilla_elegida[cantidad_casillas];
     int cant_validas = posiciones_validas(posiciones_validas_torre, mapa->casillas, mapa->alto, mapa->ancho);
     for(int i = 0; i < cantidad_casillas; casilla_elegida[i++] = 0);
-    Coordenada posibles_torres[mapa->cant_torres];
+    Pila posibles_torres[mapa->cant_torres];
+    posibles_torres->ultimo = 0;
 
     for(int torre = 0; torre < mapa->cant_torres; torre++){
         int nueva_torre = determinar_posicion_torre(casilla_elegida, cant_validas);
         casilla_elegida[nueva_torre] = 1;
-        posibles_torres[torre].x = posiciones_validas_torre[nueva_torre].x;
-        posibles_torres[torre].y = posiciones_validas_torre[nueva_torre].y;
-    
-        if(simular_turno(mapa, nivel, posibles_torres, ))
+        posibles_torres->torres[torre].x = posiciones_validas_torre[nueva_torre].x;
+        posibles_torres->torres[torre].y = posiciones_validas_torre[nueva_torre].y;
+        posibles_torres->ultimo++;
+    }
+        if(simular_turno(mapa, nivel, posibles_torres->torres, ))
             for(int torre_a_colocar =0; torre_a_colocar < mapa->cant_torres; torre_a_colocar++)
-            colocar_torre(mapa, posibles_torres[torre_a_colocar].x, posibles_torres[torre_a_colocar].y, torre_a_colocar);
+            colocar_torre(mapa, posibles_torres->torres[torre_a_colocar].x, posibles_torres->torres[torre_a_colocar].y, torre_a_colocar);
         else
-        
-        }
+    
     return;
 }
 
