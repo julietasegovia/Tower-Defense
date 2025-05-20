@@ -1,2 +1,22 @@
-# Tower-Defense
-Modificaciones del codigo en torno a las funciones disponer_con_backtracking() y disponer_custom()
+# Compilación
+
+```
+$ make
+```
+
+Para regenerar todos los archivos objeto:
+```
+$ make clean && make
+```
+
+# Ejecución
+
+```
+$ ./tower_defense
+```
+
+# Profiling
+
+```
+$ valgrind --leak-check=full ./tower_defense
+```
