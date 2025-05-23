@@ -149,15 +149,8 @@ void disponer_con_backtracking(Nivel* nivel, Mapa* mapa) {
     TipoCasilla **casillas;
     Coordenada *torres;
 } Mapa;
-
-Nivel *inicializar_nivel(int largo_camino, int cant_enemigos, int vida_inicial) {
-    Nivel *nivel = malloc(sizeof(Nivel));
-    nivel->camino = inicializar_camino(largo_camino);
-    nivel->enemigos = inicializar_enemigos(cant_enemigos, vida_inicial);
-    return nivel;
-}
 */
-int custom (Coordenada torre,  Nivel* nivel, int alcance,  Mapa* mapa) {
+int custom (Coordenada* torre,  Nivel* nivel, int alcance,  Mapa* mapa) {
     int ataque = 0;
     for (int i = torre->x - alcance; i <= torre->x + alcance; i++) {
         for (int j = torre->y - alcance; j <= torre->y + alcance; j++) {
@@ -179,7 +172,7 @@ void disponer_custom(Nivel* nivel, Mapa* mapa) {
 
     Coordenada torres_actuales[mapa->cant_torres];
 
-    if (curstom(torre, nivel, alcance, mapa) == ) {
+    if () {
         for (int i = 0; i < mapa->cant_torres; i++) {
             colocar_torre(mapa, torres_actuales[i].x, torres_actuales[i].y, i);
         }
