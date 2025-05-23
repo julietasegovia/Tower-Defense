@@ -150,7 +150,7 @@ void disponer_con_backtracking(Nivel* nivel, Mapa* mapa) {
     Coordenada *torres;
 } Mapa;
 */
-int custom (Coordenada* torre,  Nivel* nivel, int alcance,  Mapa* mapa) {
+int custom (Coordenada torre, int alcance,  Mapa* mapa) {
     int ataque = 0;
     for (int i = torre->x - alcance; i <= torre->x + alcance; i++) {
         for (int j = torre->y - alcance; j <= torre->y + alcance; j++) {
