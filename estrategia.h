@@ -9,6 +9,16 @@ typedef struct Stack_{
     int ultimo;
 }Pila;
 
+typedef struct Queque_{
+    Coordenada *vacios;
+    int ultimo, primero;
+}Cola;
+
+typedef struct Caso_{
+    int hay_bifurcacion;    //0 si no hay bifurcaciones, 1 si las hay
+    Coordenada pos_bifurcacion;     //irrelevante si hay_bifurcacion = 0
+}CasoMapa;
+
 typedef void (*DisposicionTorres)(Nivel*, Mapa*);
 
 void disponer(Nivel* nivel, Mapa* mapa);

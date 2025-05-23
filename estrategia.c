@@ -150,8 +150,35 @@ void disponer_con_backtracking(Nivel* nivel, Mapa* mapa) {
     Coordenada *torres;
 } Mapa;
 */
-int custom (Coordenada torre, int alcance,  Mapa* mapa) {
+
+CasoMapa bifurcacion(Mapa *mapita){
+    CasoMapa bifurcacion;
+    bifurcacion.hay_bifurcacion = 0;
+
+    for (int i = 1; i < mapita->ancho - 1; i++)
+        for (int j = 1; j < mapita->alto - 1; j++) {
+            if (mapita->casillas[i][j] == CAMINO) {
+                int vecinos = 0;
+                if (mapita->casillas[i+1][j] == CAMINO) vecinos++;
+                if (mapita->casillas[i-1][j] == CAMINO) vecinos++;
+                if (mapita->casillas[i][j+1] == CAMINO) vecinos++;
+                if (mapita->casillas[i][j-1] == CAMINO) vecinos++;
+
+                if(vecinos >=3){
+                    bifurcacion.hay_bifurcacion = 1;
+                    bifurcacion.pos_bifurcacion.x = i;
+                    bifurcacion.pos_bifurcacion.y = j;
+                    return bifurcacion;
+                }
+            }
+        }
+
+    return bifurcacion;
+}
+
+int custom (Coordenada torre,  Mapa* mapa) {
     int ataque = 0;
+    int alcance = mapa->distancia_ataque;
     for (int i = torre->x - alcance; i <= torre->x + alcance; i++) {
         for (int j = torre->y - alcance; j <= torre->y + alcance; j++) {
             if (i >= 0 && i < mapa->alto && j >= 0 && j < mapa->largo) {
