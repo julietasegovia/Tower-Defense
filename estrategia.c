@@ -93,6 +93,44 @@ Coordenada* filtrar_validas(TipoCasilla **casillas, int alto, int ancho) {
     return validas;
 }
 
+void disponer_con_backtracking(mapa_t* mapa, int cantidad_torres) {
+    pila_t* pila = pila_crear();
+    if (!pila) return;
+
+    Estado inicial;
+    inicial.mapita = *mapa;
+    inicial.torresColocadas = 0;
+    inicial.fila = 0;
+    inicial.columna = 0;
+
+    pila_apilar(pila, &inicial);
+
+    while (!pila_es_vacia(pila)) {
+        Estado actual;
+        pila_desapilar(pila, &actual);
+
+        if (actual.torresColocadas == cant_torres) {
+            // Copiar el estado actual al mapa original
+            *mapa = actual.mapita;
+            break; // Solución encontrada
+        }
+
+        for (int f = actual.fila; f < mapa->filas; f++) {
+            for (int c = (if (f == actual.fila) then actual.columna else 0); c < mapa->columnas; c++) {
+
+                if (es_posicion_valida(&actual.mapita, f, c)) {
+                    Estado nuevo;
+                    nuevo.mapita = actual.mapita;
+                    nuevo.torresColocadas = actual.torresColocadas + 1;
+                    nuevo.fila = f;
+                    nuevo.columna = c + 1;
+
+                    colocar_torre(&nuevo.mapita, f, c);
+                    pila_apilar(pila, &nuevo);
+                }
+            }
+        }
+    }
 
 void disponer_con_backtracking(Nivel* nivel, Mapa* mapa){
     Coordenada *pos_validas = filtrar_validas(mapa->casillas, mapa->alto, mapa->ancho);
