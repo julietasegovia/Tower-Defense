@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 void cargar_configuracion_nivel(const char* ruta_archivo, Nivel* nivel) {
     FILE* archivo = fopen(ruta_archivo, "r");
     if (!archivo) return;
