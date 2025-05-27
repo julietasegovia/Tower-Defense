@@ -1,4 +1,21 @@
 #include "nivel.h"
+#include <stdio.h>
+#include <string.h>
+
+
+void cargar_configuracion_nivel(const char* ruta_archivo, Nivel* nivel) {
+    FILE* archivo = fopen(ruta_archivo, "r");
+    if (!archivo) return;
+
+    char linea[256];
+    while (fgets(linea, sizeof(linea), archivo)) {
+        if (strncmp(linea, "Cantidad de torres: ", 20) == 0) {
+            sscanf(linea + 20, "%d", &(nivel->cantidad_torres));
+        }
+    }
+
+    fclose(archivo);
+}
 
 static Camino *inicializar_camino(int largo_camino) {
     Camino *camino = malloc(sizeof(Camino));
