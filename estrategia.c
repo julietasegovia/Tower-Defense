@@ -93,6 +93,32 @@ Coordenada* filtrar_validas(TipoCasilla **casillas, int alto, int ancho) {
     return validas;
 }
 
+
+void disponer_con_backtracking(Nivel* nivel, Mapa* mapa){
+    Coordenada *pos_validas = filtrar_validas(mapa->casillas, mapa->alto, mapa->ancho);
+    int cant_validas = posiciones_validas(pos_validas, mapa->casillas, mapa->alto, mapa->ancho);
+    Pila *slots_torres = pila_crear(mapa->cant_torres);
+
+    qsort(pos_validas, cant_validas, sizeof(Pila), distancia_al_origen); //ordeno para obtener la combinacion mas rapida
+
+    for(int i=0; i<mapa->cant_torres; i++)
+        pila_apilar(slots_torres, pos_validas[i]); //apilo la primera combinacion
+        
+    for(int i = (mapa->cant_torres -1); i < cant_validas; i++){
+        for(int j = 0; j < mapa->cant_torres; j++)
+            if(simular_nivel(nivel, mapa, disponer_con_backtracking))    
+                colocar_torre(mapa, slots_torres->datos[j].x, slots_torres->datos[j].y, j);
+            else{
+                pila_desapilar(slots_torres);
+            }
+    }
+
+
+    return;
+}
+
+
+
 Tower custom (Coordenada torre,  Mapa* mapita) {
     Tower torre_ord;
     torre_ord.ataque = 0;
@@ -129,30 +155,6 @@ int comparar_torres(Tower *torre_a, Tower *torre_b) {
 
     return distancia_al_origen(torre_a) - distancia_al_origen(torre_b);
 }
-
-void disponer_con_backtracking(Nivel* nivel, Mapa* mapa){
-    Coordenada *pos_validas = filtrar_validas(mapa->casillas, mapa->alto, mapa->ancho);
-    int cant_validas = posiciones_validas(pos_validas, mapa->casillas, mapa->alto, mapa->ancho);
-    Pila *slots_torres = pila_crear(mapa->cant_torres);
-
-    qsort(pos_validas, cant_validas, sizeof(Pila), distancia_al_origen); //ordeno para obtener la combinacion mas rapida
-
-    for(int i=0; i<mapa->cant_torres; i++)
-        pila_apilar(slots_torres, pos_validas[i]); //apilo la primera combinacion
-        
-    for(int i = (mapa->cant_torres -1); i < cant_validas; i++){
-        for(int j = 0; j < mapa->cant_torres; j++)
-            if(simular_nivel(nivel, mapa, disponer_con_backtracking))    
-                colocar_torre(mapa, slots_torres->datos[j].x, slots_torres->datos[j].y, j);
-            else{
-                pila_desapilar(slots_torres);
-            }
-    }
-
-
-    return;
-}
-
 void disponer_custom(Nivel* nivel, Mapa* mapa) {
 
     Coordenada *pos_validas = filtrar_validas(mapa->casillas, mapa->alto, mapa->ancho);
