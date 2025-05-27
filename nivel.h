@@ -22,6 +22,7 @@ typedef struct {
 typedef struct {
     Enemigos *enemigos;
     Camino *camino;
+    int cant_torres; //agregue esto para poder hacer el backtracking
 } Nivel;
 
 Nivel *inicializar_nivel(int largo_camino, int cant_enemigos, int vida_inicial);
