@@ -151,8 +151,6 @@ int main() {
                 printf("Ingrese la ruta al archivo de nivel: ");
                 scanf("%s", ruta_nivel_actual);
                 
-                sprintf(ruta_nivel_actual, "niveles/nivel%02d.txt", numero_nivel);
-
                 if(memoria_a_liberar) {
                     liberar_simulacion(nivel, mapa);
                     memoria_a_liberar = 0;
