@@ -1,6 +1,8 @@
 #include "estrategia.h"
 #include "turno.h"
 #include "simulador.h"
+#include "pila.h"
+
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -55,28 +57,6 @@ void disponer(Nivel* nivel, Mapa* mapa) {
     }
 }
 
-Pila * pila_crear (int tamIn){
-
-    Pila *pilita = malloc(sizeof(Pila));
-    pilita->datos = malloc(sizeof(int) * tamIn);
-    pilita->tam = tamIn; 
-    
-    return  pilita;
-}
-
-void pila_apilar(Pila *pilita, Coordenada nuevo) {
-    if(pilita->tam == pilita->ultimo) {
-        pilita->tam *= 2;
-        pilita->datos = realloc(pilita->datos, pilita->tam * sizeof(int));
-    }
-    pilita->datos[pilita->ultimo] = nuevo;
-    pilita->ultimo ++;
-}
-
-void pila_desapilar(Pila *pilita) {
-    pilita->ultimo --;
-}
-
 Coordenada* filtrar_validas(TipoCasilla **casillas, int alto, int ancho) {
     Coordenada *validas = malloc (sizeof (Coordenada)*(alto * ancho));
     int cant_posiciones_validas = 0;
@@ -93,45 +73,60 @@ Coordenada* filtrar_validas(TipoCasilla **casillas, int alto, int ancho) {
     return validas;
 }
 
-void disponer_con_backtracking(mapa_t* mapa, int cantidad_torres) {
-    pila_t* pila = pila_crear();
-    if (!pila) return;
+void backtrack(Coordenada *validas, int index, int cant_validas, Pila *actual, Pila *mejor, Mapa *mapa, int *mejor_ataque) {
+    // Caso base: ya coloqué todas las torres necesarias
+    if (actual->ultimo == mapa->cant_torres) {
+        int ataque_total = 0;
 
-    Estado inicial;
-    inicial.mapita = *mapa;
-    inicial.torresColocadas = 0;
-    inicial.fila = 0;
-    inicial.columna = 0;
-
-    pila_apilar(pila, &inicial);
-
-    while (!pila_es_vacia(pila)) {
-        Estado actual;
-        pila_desapilar(pila, &actual);
-
-        if (actual.torresColocadas == cant_torres) {
-            // Copiar el estado actual al mapa original
-            *mapa = actual.mapita;
-            break; // Solución encontrada
+        // Calcular el ataque total de la estrategia actual
+        for (int i = 0; i < actual->ultimo; i++) {
+            Coordenada *c = actual->datos[i];
+            Tower torre = custom(c, mapa);  // Usamos la torre generada en esa coordenada
+            ataque_total += torre.ataque;
         }
 
-        for (int f = actual.fila; f < mapa->filas; f++) {
-            for (int c = (if (f == actual.fila) then actual.columna else 0); c < mapa->columnas; c++) {
+        // Si es la mejor estrategia encontrada hasta ahora, la guardamos
+        if (ataque_total > *mejor_ataque) {
+            *mejor_ataque = ataque_total;
+            mejor->ultimo = 0;
 
-                if (es_posicion_valida(&actual.mapita, f, c)) {
-                    Estado nuevo;
-                    nuevo.mapita = actual.mapita;
-                    nuevo.torresColocadas = actual.torresColocadas + 1;
-                    nuevo.fila = f;
-                    nuevo.columna = c + 1;
-
-                    colocar_torre(&nuevo.mapita, f, c);
-                    pila_apilar(pila, &nuevo);
-                }
+            for (int i = 0; i < actual->ultimo; i++) {
+                pila_apilar(mejor, actual->datos[i], copiar);
             }
         }
+
+        return;
     }
 
+    for (int i = index; i < cant_validas; i++) {
+        pila_apilar(actual, &validas[i], copiar);
+        backtrack(validas, i + 1, cant_validas, actual, mejor, mapa, mejor_ataque);
+        pila_desapilar(actual, destruir); 
+    }
+}
+
+void disponer_con_backtracking(Nivel* nivel, Mapa* mapa) {
+    Coordenada *validas = filtrar_validas(mapa->casillas, mapa->alto, mapa->ancho);
+    int cant_validas = posiciones_validas(validas, mapa->casillas, mapa->alto, mapa->ancho);
+
+    Pila *actual = pila_crear(mapa->cant_torres);
+    Pila *mejor = pila_crear(mapa->cant_torres);
+    int mejor_ataque = -1;
+
+    backtrack(validas, 0, cant_validas, actual, mejor, mapa, &mejor_ataque);
+
+    for (int i = 0; i < mejor->ultimo; i++) {
+        Coordenada *c = mejor->datos[i];
+        colocar_torre(mapa, c->x, c->y, i);
+    }
+
+    free(validas);
+    pila_destruir(actual, destruir);
+    pila_destruir(mejor, destruir);
+}
+
+
+/*
 void disponer_con_backtracking(Nivel* nivel, Mapa* mapa){
     Coordenada *pos_validas = filtrar_validas(mapa->casillas, mapa->alto, mapa->ancho);
     int cant_validas = posiciones_validas(pos_validas, mapa->casillas, mapa->alto, mapa->ancho);
@@ -154,10 +149,10 @@ void disponer_con_backtracking(Nivel* nivel, Mapa* mapa){
 
     return;
 }
+*/
 
 
-
-Tower custom (Coordenada torre,  Mapa* mapita) {
+Tower custom (Coordenada* torre,  Mapa* mapita) {
     Tower torre_ord;
     torre_ord.ataque = 0;
     int rango = mapita->distancia_ataque;
@@ -165,8 +160,8 @@ Tower custom (Coordenada torre,  Mapa* mapita) {
     for (int i = -rango; i <= rango; i++)
         for (int j = -rango; j <= rango; j++) {
             
-            int hit_x = torre.x + i;
-            int hit_y = torre.y + j;
+            int hit_x = torre->x + i;
+            int hit_y = torre->y + j;
 
             if (i == 0 && j == 0) continue;
 
@@ -176,8 +171,8 @@ Tower custom (Coordenada torre,  Mapa* mapita) {
             }
     }
 
-    torre_ord.pos_torre.x = torre.x;
-    torre_ord.pos_torre.y = torre.y;
+    torre_ord.pos_torre.x = torre->x;
+    torre_ord.pos_torre.y = torre->y;
 
     return torre_ord;
 }
@@ -200,7 +195,7 @@ void disponer_custom(Nivel* nivel, Mapa* mapa) {
     Tower *posibles_torres = malloc(sizeof(Tower) * cant_validas);
 
     for(int i = 0; i<cant_validas; i++)
-    posibles_torres[i] = custom(pos_validas[i], mapa); //lleno el arreglo
+    posibles_torres[i] = custom(&pos_validas[i], mapa); //lleno el arreglo
     
     qsort(posibles_torres, cant_validas, sizeof(Tower), comparar_torres); //ordena por primera prioridad el ataque y por segunda la cerania a (0,0)
     
