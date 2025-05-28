@@ -73,6 +73,32 @@ Coordenada* filtrar_validas(TipoCasilla **casillas, int alto, int ancho) {
     return validas;
 }
 
+
+Tower custom (Coordenada* torre,  Mapa* mapita) {
+    Tower torre_ord;
+    torre_ord.ataque = 0;
+    int rango = mapita->distancia_ataque;
+
+    for (int i = -rango; i <= rango; i++)
+        for (int j = -rango; j <= rango; j++) {
+            
+            int hit_x = torre->x + i;
+            int hit_y = torre->y + j;
+
+            if (i == 0 && j == 0) continue;
+
+            if (hit_x >= 0 && hit_x < mapita->ancho && hit_y >= 0 && hit_y < mapita->alto)
+                if (mapita->casillas[hit_x][hit_y] == CAMINO) {
+                    torre_ord.ataque++;
+            }
+    }
+
+    torre_ord.pos_torre.x = torre->x;
+    torre_ord.pos_torre.y = torre->y;
+
+    return torre_ord;
+}
+
 void backtrack(Coordenada *validas, int index, int cant_validas, Pila *actual, Pila *mejor, Mapa *mapa, int *mejor_ataque) {
     // Caso base: ya coloqué todas las torres necesarias
     if (actual->ultimo == mapa->cant_torres) {
@@ -152,36 +178,15 @@ void disponer_con_backtracking(Nivel* nivel, Mapa* mapa){
 */
 
 
-Tower custom (Coordenada* torre,  Mapa* mapita) {
-    Tower torre_ord;
-    torre_ord.ataque = 0;
-    int rango = mapita->distancia_ataque;
 
-    for (int i = -rango; i <= rango; i++)
-        for (int j = -rango; j <= rango; j++) {
-            
-            int hit_x = torre->x + i;
-            int hit_y = torre->y + j;
-
-            if (i == 0 && j == 0) continue;
-
-            if (hit_x >= 0 && hit_x < mapita->ancho && hit_y >= 0 && hit_y < mapita->alto)
-                if (mapita->casillas[hit_x][hit_y] == CAMINO) {
-                    torre_ord.ataque++;
-            }
-    }
-
-    torre_ord.pos_torre.x = torre->x;
-    torre_ord.pos_torre.y = torre->y;
-
-    return torre_ord;
-}
-
-int distancia_al_origen(Tower *torre) {
+int distancia_al_origen(const Tower *torre) {
     return torre->pos_torre.x * torre->pos_torre.x + torre->pos_torre.y * torre->pos_torre.y;
 }
 
-int comparar_torres(Tower *torre_a, Tower *torre_b) {
+int comparar_torres(const void *a, const void *b) {
+    const Tower *torre_a = (const Tower *)a;
+    const Tower *torre_b = (const Tower *)b;
+
     if (torre_b->ataque != torre_a->ataque) {
         return torre_b->ataque - torre_a->ataque;
     }
