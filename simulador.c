@@ -150,7 +150,7 @@ int main() {
             case 2:
                 printf("Ingrese la ruta al archivo de nivel: ");
                 scanf("%s", ruta_nivel_actual);
-                
+
                 if(memoria_a_liberar) {
                     liberar_simulacion(nivel, mapa);
                     memoria_a_liberar = 0;

@@ -1,6 +1,4 @@
 #include "nivel.h"
-#include <stdio.h>
-#include <string.h>
 
 static Camino *inicializar_camino(int largo_camino) {
     Camino *camino = malloc(sizeof(Camino));
